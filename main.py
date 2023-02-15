@@ -56,11 +56,10 @@ def get_move(board, grid_size, screen_width, screen_height):
                 return row, col
 def check_winner(board, WIN_AMOUNT):
         """
-        Function for checking if there is a winner according to win_amount\n
-        Returns 0 if there is no winner\n
-        Returns 1 if X won\n
-        Returns 2 if O won\n
-        Returns 3 if there is a tie
+        Function for checking if there is a winner according to WIN_AMOUNT and NUM_PLAYERS.\n
+        Returns None if there is no winner\n
+        Returns 0 if there is a tie\n
+        Returns n if player n won
         """
         # Check for a horizontal win
         for i in range(len(board)):
@@ -116,7 +115,7 @@ def check_winner(board, WIN_AMOUNT):
                         if board[i][j] == 0:
                                 return 0
 
-        return 3
+        return None
 
 # Main function
 def main():

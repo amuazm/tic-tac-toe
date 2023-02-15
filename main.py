@@ -1,4 +1,5 @@
 # Create a tic-tac-toe board
+import random
 import pygame
 
 # Function to draw grid lines
@@ -127,7 +128,7 @@ def main():
         # Amount needed in a row to win
         WIN_AMOUNT = 4
         # Number of players
-        # TODO: Add support for more than 2 players
+        NUM_PLAYERS = 2
         # Store the board state as a 2D array
         board = [[0 for i in range(GRID_SIZE)] for j in range(GRID_SIZE)]
         # Store the number of turns
@@ -153,22 +154,6 @@ def main():
                         if event.type == pygame.QUIT:
                                 running = False
 
-                # Display the board
-                display_board(board, SCREEN_WIDTH, SCREEN_HEIGHT, GRID_SIZE, screen)
-                # Flip the display
-                pygame.display.flip()
-                
-                # Get user input
-                row, col = get_move(board, GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT)
-                if row == None or col == None:
-                        continue
-
-                # Place an X or O on the board
-                if turns % 2 == 0:
-                        board[row][col] = 1
-                else:
-                        board[row][col] = 2
-
                 # Check for a winner
                 winner = check_winner(board, WIN_AMOUNT)
                 if winner != 0:
@@ -181,7 +166,7 @@ def main():
                         else:
                                 text = font.render("It's a tie!", True, (0, 0, 0))
                         screen.blit(text, (SCREEN_WIDTH / 2 - text.get_width() / 2, SCREEN_HEIGHT / 2 - text.get_height() / 2))
-
+                        
                         # Display the board
                         display_board(board, SCREEN_WIDTH, SCREEN_HEIGHT, GRID_SIZE, screen)
                         # Flip the display
@@ -191,9 +176,24 @@ def main():
 
                         # Reset the board
                         board = [[0 for i in range(GRID_SIZE)] for j in range(GRID_SIZE)]
+                        # Reset the screen
+                        screen.fill((255, 255, 255))
+                        draw_grid_lines(GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, screen)
                         turns = 0
-                else:
-                        turns += 1
+
+                # Display the board
+                display_board(board, SCREEN_WIDTH, SCREEN_HEIGHT, GRID_SIZE, screen)
+                # Flip the display
+                pygame.display.flip()
+
+                # Get user input
+                row, col = get_move(board, GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT)
+                if row == None or col == None:
+                        continue
+
+                # Place the move on the board
+                board[row][col] = turns % NUM_PLAYERS + 1
+                turns += 1
                         
 
         # Done! Time to quit. 

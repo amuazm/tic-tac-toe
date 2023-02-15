@@ -18,15 +18,51 @@ def draw_x(x, y, size, screen):
 def draw_o(x, y, size, screen):
         pygame.draw.circle(screen, (0, 0, 0), (int(x + size / 2), int(y + size / 2)), int(size / 2), 5)
 
+# Function for drawing squares
+def draw_square(x, y, size, screen):
+        reducer = 10
+        size -= reducer
+        x += reducer / 2
+        y += reducer / 2
+        pygame.draw.rect(screen, (0, 0, 0), (x, y, size, size), 5)
+
+# Function for drawing triangles
+def draw_triangle(x, y, size, screen):
+        reducer = 15
+        size -= reducer
+        x += reducer / 2
+        y += reducer / 2
+        pygame.draw.polygon(screen, (0, 0, 0), ((x, y + size), (x + size, y + size), (x + size / 2, y)), 5)
+
+# Function for drawing stars
+def draw_star(x, y, size, screen):
+        pygame.draw.polygon(screen, (0, 0, 0), ((x + size / 2, y), (x + size / 2 + size / 10, y + size / 2 - size / 10), (x + size, y + size / 2 - size / 10), (x + size / 2 + size / 5, y + size / 2 + size / 10), (x + size / 2 + size / 2.5, y + size), (x + size / 2, y + size / 2 + size / 3), (x + size / 2 - size / 2.5, y + size), (x + size / 2 - size / 5, y + size / 2 + size / 10), (x, y + size / 2 - size / 10), (x + size / 2 - size / 10, y + size / 2 - size / 10)), 5)
+
+# Function for drawing shapes
+def draw_shape(x, y, size, shape, screen):
+        if shape == 1:
+                draw_x(x, y, size, screen)
+        elif shape == 2:
+                draw_o(x, y, size, screen)
+        elif shape == 3:
+                draw_square(x, y, size, screen)
+        elif shape == 4:
+                draw_triangle(x, y, size, screen)
+        elif shape == 5:
+                draw_star(x, y, size, screen)
+
+# Function for drawing numbers
+def draw_number(x, y, size, number, screen):
+        draw_text(str(number), x, y, size, screen)
+
 # Function for displaying the board
 def display_board(board, SCREEN_WIDTH, SCREEN_HEIGHT, GRID_SIZE, screen):
-        # Draw Xs and Os
+        # Draw players
         for i in range(len(board)):
                 for j in range(len(board[i])):
-                        if board[i][j] == 1:
-                                draw_x(SCREEN_WIDTH / GRID_SIZE * j, SCREEN_HEIGHT / GRID_SIZE * i, SCREEN_WIDTH / GRID_SIZE, screen)
-                        elif board[i][j] == 2:
-                                draw_o(SCREEN_WIDTH / GRID_SIZE * j, SCREEN_HEIGHT / GRID_SIZE * i, SCREEN_WIDTH / GRID_SIZE, screen)
+                        if board[i][j] != 0:
+                                draw_shape(SCREEN_WIDTH / GRID_SIZE * j, SCREEN_HEIGHT / GRID_SIZE * i, int(SCREEN_WIDTH / GRID_SIZE), board[i][j], screen)
+                                # draw_number(SCREEN_WIDTH / GRID_SIZE * j, SCREEN_HEIGHT / GRID_SIZE * i, int(SCREEN_WIDTH / GRID_SIZE), board[i][j], screen)
 
 # Function to get user move
 def get_move(board, grid_size, screen_width, screen_height):
@@ -54,6 +90,7 @@ def get_move(board, grid_size, screen_width, screen_height):
                 return None, None
         else:
                 return row, col
+
 def check_winner(board, WIN_AMOUNT):
         """
         Function for checking if there is a winner according to WIN_AMOUNT and NUM_PLAYERS.\n
@@ -110,12 +147,33 @@ def check_winner(board, WIN_AMOUNT):
                                         return board[i][j]
 
         # Check for a tie
+        tie = True
         for i in range(len(board)):
                 for j in range(len(board[i])):
                         if board[i][j] == 0:
-                                return 0
+                                tie = False
+        if tie:
+                return 0
 
         return None
+
+# Function for drawing text
+def draw_text(text, x, y, size, screen):
+        font = pygame.font.SysFont("comicsansms", size)
+        text = font.render(text, True, (0, 0, 0))
+        screen.blit(text, (x, y))
+
+# Function for displaying the winner
+def display_winner(winner, screen):
+        size = screen.get_height() // 10
+        x = screen.get_width() // 2 - size * 2
+        y = screen.get_height() // 2 - size // 2
+
+        # Display the winner
+        if winner == 0:
+                draw_text("Tie!", x, y, size, screen)
+        else:
+                draw_text("Player " + str(winner) + " wins!", x, y, size, screen)
 
 # Main function
 def main():
@@ -127,7 +185,7 @@ def main():
         # Amount needed in a row to win
         WIN_AMOUNT = 4
         # Number of players
-        NUM_PLAYERS = 2
+        NUM_PLAYERS = 5
         # Store the board state as a 2D array
         board = [[0 for i in range(GRID_SIZE)] for j in range(GRID_SIZE)]
         # Store the number of turns
@@ -155,30 +213,19 @@ def main():
 
                 # Check for a winner
                 winner = check_winner(board, WIN_AMOUNT)
-                if winner != 0:
-                        # Draw the winner
-                        font = pygame.font.SysFont("comicsansms", 72)
-                        if winner == 1:
-                                text = font.render("X wins!", True, (0, 0, 0))
-                        elif winner == 2:
-                                text = font.render("O wins!", True, (0, 0, 0))
-                        else:
-                                text = font.render("It's a tie!", True, (0, 0, 0))
-                        screen.blit(text, (SCREEN_WIDTH / 2 - text.get_width() / 2, SCREEN_HEIGHT / 2 - text.get_height() / 2))
-                        
-                        # Display the board
+                if winner != None:
+                        display_winner(winner, screen)
                         display_board(board, SCREEN_WIDTH, SCREEN_HEIGHT, GRID_SIZE, screen)
-                        # Flip the display
                         pygame.display.flip()
-                        # Delay the game loop
                         pygame.time.delay(2000)
 
                         # Reset the board
                         board = [[0 for i in range(GRID_SIZE)] for j in range(GRID_SIZE)]
+                        turns = 0
                         # Reset the screen
                         screen.fill((255, 255, 255))
                         draw_grid_lines(GRID_SIZE, SCREEN_WIDTH, SCREEN_HEIGHT, screen)
-                        turns = 0
+                        continue
 
                 # Display the board
                 display_board(board, SCREEN_WIDTH, SCREEN_HEIGHT, GRID_SIZE, screen)
@@ -193,7 +240,6 @@ def main():
                 # Place the move on the board
                 board[row][col] = turns % NUM_PLAYERS + 1
                 turns += 1
-                        
 
         # Done! Time to quit. 
         pygame.quit()
